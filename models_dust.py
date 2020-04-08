@@ -63,7 +63,7 @@ class Data:
         return all_txts
     def dic_arr(self):
         dic_arr = {}
-        # This method returns a dictionary containing all the data, where a key is 
+        # This method returns a dictionary containing all the data, where a key is
         # the name of a .txt file and the value is the array containing the relevant
         # data from this file, relevant for the purposes of this project.
         all_txts = self.dic_files()
@@ -169,7 +169,7 @@ class Model:
         f = interpolate.interp1d(lambdas,spectrum,fill_value='extrapolate')
         return f(interval)
     def plot_spec(self):
-        # it plots the computed spectrum from (1) in a semilog plot (for x), 
+        # it plots the computed spectrum from (1) in a semilog plot (for x),
         # it shows it and saves it in a PDF file as well.
         lambdas,spectrum = self.spectrum()
         if len(lambdas)== 1:

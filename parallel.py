@@ -9,8 +9,9 @@ dirpath, dirnames, files_array = data.txt_files()
 umins, umaxs = umm(files_array)
 # models --> it is already on moddels_dust
 gammas = np.logspace(-3.,-0.3,10)
-filters = ['./filters/MIPS1.dat','./filters/PACS_blue.dat','./filters/PACs_green.dat',\
+bands = ['./filters/MIPS1.dat','./filters/PACS_blue.dat','./filters/PACS_green.dat',\
 './filters/PACS_red.dat','./filters/PLW.dat','./filters/PMW.dat','./filters/PSW.dat']
+filters = [Filter_handler(band) for band in bands]
 ## Permutations of the physical parameters to generate the tuples for starmap
 # https://stackoverflow.com/questions/798854/all-combinations-of-a-list-of-lists
 params      = [umins,umaxs,models,gammas,[data],filters]
@@ -20,9 +21,11 @@ print(len(params_comb))
 
 ## Using Pool.starmap to manage the sub-processes
 # https://stackoverflow.com/questions/5442910/python-multiprocessing-pool-map-for-multiple-arguments
-print(params_comb[1000])
+print(params_comb[1001])
 #m = Model(umin= params_comb[1000][0], umax=params_comb[1000][1], model=params_comb[1000][2],gamma = params_comb[1000][3],data = params_comb[1000][4], filter=params_comb[1000][5])
 if __name__ == '__main__':
     with Pool() as pool:
-        results = pool.starmap(Model, params_comb[1000:1005])
-    print(results)
+        results = pool.starmap(Model, params_comb[1001:1002])
+        lum_densities = [results[i].L_density() for i in range(len(results))]
+        print(lum_densities)
+    #lum_densities = RawArray(ctypes.c_float,)

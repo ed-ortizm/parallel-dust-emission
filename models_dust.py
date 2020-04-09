@@ -140,7 +140,10 @@ class Model:
         self.filter = filter # Filter data, cured in the last Class
     # Returning the raw data needed to compute the model
     def raw_model(self):
-        return self.key_min_min, self.data.dic_arr()[self.key_min_min], self.key_min_max, self.data.dic_arr()[self.key_min_max]
+        print('self.key_min_min ',self.key_min_min)
+        print('self.key_min_max ',self.key_min_max)
+        return self.key_min_min, self.data.dic_arr()[self.key_min_min], self.key_min_max,\
+        self.data.dic_arr()[self.key_min_max]
     # Computing the model (first 4 parameters of the constructor)
     def spectrum(self):
         min_min, j_nu_min_min, min_max, j_nu_min_max = self.raw_model()

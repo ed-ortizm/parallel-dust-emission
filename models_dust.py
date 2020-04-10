@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # From README.txt
 models = [ 'MW3.1_00', 'MW3.1_10', 'MW3.1_20', 'MW3.1_30', 'MW3.1_40', 'MW3.1_50', 'MW3.1_60', 'LMC2_00', 'LMC2_05', 'LMC2_10', 'smc']
 q_PAHs  = [ 0.47, 1.12, 1.77, 2.50, 3.19, 3.90, 4.58, 0.75, 1.49, 2.37, 0.10]
-model_q_dic = {models[i]:q_PAHs for i in range(len(models))}
+model_q_dic = {models[i]:q_PAHs[i] for i in range(len(models))}
 # ftp://ftp.astro.princeton.edu/draine/dust/irem4/
 
 # Class to read the directory structure and pass the data to arrays withing a dictionary
@@ -140,15 +140,25 @@ class Model:
         self.filter = filter # Filter data, cured in the last Class
     # Returning the raw data needed to compute the model
     def raw_model(self):
-        print('self.key_min_min ',self.key_min_min)
-        print('self.key_min_max ',self.key_min_max)
-        return self.key_min_min, self.data.dic_arr()[self.key_min_min], self.key_min_max,\
-        self.data.dic_arr()[self.key_min_max]
+        # print('self.key_min_min ',self.key_min_min)
+        # print('self.key_min_max ',self.key_min_max)
+        file = 'dust_models/' + self.key_min_max.split('_')[0] + '/' +\
+        self.key_min_max
+        #print(file)
+        if self.key_min_max in self.data.dic_arr():
+            return self.key_min_min, self.data.dic_arr()[self.key_min_min],\
+            self.key_min_max, self.data.dic_arr()[self.key_min_max]
+        else:
+            return '0','0','0','0' # no min_max file available
     # Computing the model (first 4 parameters of the constructor)
     def spectrum(self):
         min_min, j_nu_min_min, min_max, j_nu_min_max = self.raw_model()
+        if min_min == '0':
+            print("Impossible to compute the spectra")
+            print("There is no min_max file\n")
+            return np.zeros(1), np.zeros(1)
         # to be careful about empty txt files
-        if (len(j_nu_min_min) == 3):
+        elif (len(j_nu_min_min) == 3):
             print("Impossible to compute the spectra")
             print(min_min + " does not have enough data\n")
             return np.zeros(1), np.zeros(1)
@@ -198,6 +208,10 @@ class Model:
     def L_density(self):
         # it returns the luminosity density in two formats, per wavelength and per frequency.
         model_lambdas, spectrum = self.spectrum()
+        if len(model_lambdas)== 1:
+            print("Impossible to compute lum density, no min_max file")
+            print("There is no spectral data for this model.\nReturning 0 & 0\n")
+            return 0, 0
         filter_lambdas          = self.filter.lamb_f()
         lambdas                 = lamb_inter(filter_lambdas,model_lambdas)
 

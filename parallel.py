@@ -11,6 +11,7 @@ dirpath, dirnames, files_array = data.txt_files()
 umins, umaxs = umm(files_array)
 # models --> it is already on moddels_dust
 gammas = np.logspace(-3.,-0.3,10)
+p_bands = ['MIPS1','PACS_blue','PACS_green','PACS_red','PLW','PMW','PSW']
 bands = ['./filters/MIPS1.dat','./filters/PACS_blue.dat','./filters/PACS_green.dat',\
 './filters/PACS_red.dat','./filters/PLW.dat','./filters/PMW.dat','./filters/PSW.dat']
 filters = [Filter_handler(band) for band in bands]
@@ -38,10 +39,27 @@ if __name__ == '__main__':
         umax   = float(params[i][1])
         q_PAH  = model_q_dic[params[i][2]]
         gamma  = params[i][3]
-        lum = lum_densities[i][1]
-        data = [umin, umax, q_PAH, gamma, lum]
-        # when there is no min_max file, do not pay attention to the data
-        if lum == 0:
-            pass
-        else:
-            raw_arrays.append(RawArray(ctypes.c_float,data))
+        lum = lum_densities[i][1:]#[1]
+        print(lum)
+    #     data = [umin, umax, q_PAH, gamma, lum]
+    #     # when there is no min_max file, do not pay attention to the data
+    #     if lum == 0:
+    #         pass
+    #     else:
+    #         raw_arrays.append(RawArray(ctypes.c_float,data))
+    #
+    # ## Converting monochromatic luminosities to mJy
+    # # I'll stor the conversion factor per galaxy and when the time comes,
+    # # I'll use it
+    # data = Table.read('edgar.fits')
+    # d = np.array([dist for dist in data['dist']])
+    # conv_factor = 1e-15/(3.086*d)
+    # data['conv_factor'] = conv_factor
+    #
+    # ## Computing the chi squared
+    #
+    # fs = np.array([data[band] for band in p_bands])
+    # fs = fs.T
+    # ss = np.array([data[band + '_err' for band in p_bands]])
+    # ss = ss.T
+    # mm =

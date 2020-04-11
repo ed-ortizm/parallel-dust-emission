@@ -1,6 +1,7 @@
 from models_dust import *
 from multiprocessing import Pool
 from itertools import product
+from astropy.table import Table 
 # Function to obtain umin, umax lists
 def umm(files_array):
     umin, umax = [], []

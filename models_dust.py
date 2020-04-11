@@ -77,6 +77,8 @@ class Data:
 class Filter_handler():
     def __init__(self,filter):
         self.name = filter
+        if '/' in filter:
+            self.p_name = filter.split('/')[2].split('.')[0]
         self.filter = np.loadtxt(filter)
     def lamb_f(self):
         #converting filter wavelength to nm
@@ -210,7 +212,7 @@ class Model:
         model_lambdas, spectrum = self.spectrum()
         if len(model_lambdas)== 1:
             print("Impossible to compute lum density, no min_max file")
-            print("There is no spectral data for this model.\nReturning 0 & 0\n")
+            print("There is no spectral data for this model.\nReturning 0 & 0 & '0'\n")
             return 0, 0
         filter_lambdas          = self.filter.lamb_f()
         lambdas                 = lamb_inter(filter_lambdas,model_lambdas)
@@ -221,4 +223,4 @@ class Model:
         lambda2 = 1./np.trapz(filter_energy/(lambdas*lambdas))
         density_w = np.trapz(TxL,lambdas)
         density_f = lambda2*density_w/(3e17)
-        return density_w, density_f
+        return density_w, density_f, self.filter.p_name

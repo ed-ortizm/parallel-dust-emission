@@ -34,32 +34,53 @@ if __name__ == '__main__':
         models = pool.starmap(Model, params)
         lum_densities = [model.L_density() for model in models]
     raw_arrays = []
+    # I'll need this for the alpha and chi squared
+    # ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
+    MIPS1, PACS_blue, PACS_red, PACS_green, PSW, PMW, PLW= [],[],[],[],[],[],[]
     for i in range(len(params)):
         umin   = float(params[i][0])
         umax   = float(params[i][1])
         q_PAH  = model_q_dic[params[i][2]]
         gamma  = params[i][3]
-        lum = lum_densities[i][1:]#[1]
-        print(lum)
-    #     data = [umin, umax, q_PAH, gamma, lum]
-    #     # when there is no min_max file, do not pay attention to the data
-    #     if lum == 0:
-    #         pass
-    #     else:
-    #         raw_arrays.append(RawArray(ctypes.c_float,data))
-    #
-    # ## Converting monochromatic luminosities to mJy
-    # # I'll stor the conversion factor per galaxy and when the time comes,
-    # # I'll use it
-    # data = Table.read('edgar.fits')
-    # d = np.array([dist for dist in data['dist']])
-    # conv_factor = 1e-15/(3.086*d)
-    # data['conv_factor'] = conv_factor
-    #
-    # ## Computing the chi squared
-    #
-    # fs = np.array([data[band] for band in p_bands])
-    # fs = fs.T
-    # ss = np.array([data[band + '_err' for band in p_bands]])
-    # ss = ss.T
-    # mm =
+        lum = lum_densities[i][1:] # --> (L_density,band)
+        data = [umin, umax, q_PAH, gamma, lum[0], lum[1]]
+        # when there is no min_max file, do not pay attention to the data
+        if lum[0] == 0:
+            pass
+        else:
+            raw_arrays.append(RawArray(ctypes.c_float,data))
+            if lum[1]   == 'MIPS1':
+                MIPS1.append(lum[0])
+            elif lum[1] == 'PACS_blue':
+                PACS_blue.append(lum[0])
+            elif lum[1] == 'PACS_red':
+                PACS_red.append(lum[0])
+            elif lum[1] == 'PACS_green':
+                PACS_green.append(lum[0])
+            elif lum[1] == 'PSW':
+                PSW.append(lum[0])
+            elif lum[1] =='PMW':
+                PMW.append(lum[0])
+            else:
+                PLW.append(lum[0])
+
+    ## Converting monochromatic luminosities to mJy
+    # I'll store the conversion factor per galaxy and when the time comes,
+    # I'll use it
+    data = Table.read('edgar.fits')
+    d = np.array([dist for dist in data['dist']])
+    conv_factor = 1e-15/(3.086*d)
+    data['conv_factor'] = conv_factor
+
+    ## Computing the chi squared
+    # First the elements for alpha
+    fs = np.array([data[band] for band in p_bands])
+    fs = fs.T
+    ss = np.array([data[band + '_err' for band in p_bands]])
+    ss = ss.T
+    # I need to order then per filter as it is ordered in fs and ss
+    # ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
+    ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
+    ms = mm.T
+    # alpha
+    alpha =

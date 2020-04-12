@@ -81,6 +81,7 @@ if __name__ == '__main__':
     # I need to order then per filter as it is ordered in fs and ss
     # ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
     ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
-    ms = mm.T
+    ms = mm.T # (nx7)
     # alpha
-    alpha =
+    alpha = alpha(fs,ss,ms,conv_factor)
+    chi2 = chi2(fs,ss,ms,alpha,conv_factor)

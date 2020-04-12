@@ -84,16 +84,21 @@ ss = ss.T
 ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
 ms = ms.T # (nx7)
 # alpha
+print(type(conv_factor))
 alp = alpha(fs,ss,ms,conv_factor)
-x2 = chi2(fs,ss,ms,alpha,conv_factor)
-best_x2 = x2.min()
+x2 = chi2(fs,ss,ms,conv_factor,alp)
+#best_x2 = x2.min()
 # print(alpha.shape,chi2.shape)
 # print(alpha)
 
 ## fitting in parallel: I'll adapt my alpha and chi2 for each galaxy
 # I need a list for galaxy with f,s and conv_fac and the models
 
-params = [[fs[i],ss[i],conv_factor[i],ms] for i in range(fs.shape[0])]
+params = [(fs[i],ss[i],conv_factor[i],ms) for i in range(fs.shape[0])]
 with Pool() as pool:
     alp2 = pool.starmap(alpha_2, params)
-# alph2 is a 21 elements list where each element has n alphas
+# alp2 is a 21 elements list where each element has n alphas
+params = [(fs[i],ss[i],conv_factor[i],ms,alp2[i]) for i in range(fs.shape[0])]
+with Pool() as pool:
+    x2_2 = pool.starmap(chi2_2, params)
+print(x2_2)

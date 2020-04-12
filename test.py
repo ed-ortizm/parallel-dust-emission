@@ -42,7 +42,7 @@ def alpha_2(fs,ss,ms,conv_factor):
     alp = u/d
     # 21 galaxies where each row is the alpha array as a consequence of n models
     return alp
-def chi2_2(fs,ss,ms,alpha,conv_factor):
+def chi2_2(fs,ss,ms,conv_factor, alpha):
     u1 = fs # (1x7)
     ms = ms*conv_factor # converting to mJy
     u2 = alpha*ms.T # alpha[i,:] = (1xn), ms.shape = (nx7)
@@ -70,31 +70,15 @@ ss = np.array([data[band + '_err'] for band in p_bands])
 ss = ss.T
 # I need to order then per filter as it is ordered in fs and ss
 # ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
-MIPS1= np.ones(10)
-PACS_blue = 2* MIPS1
-PACS_red = 3* MIPS1
-PACS_green= 4*MIPS1
-PSW = 5 * MIPS1
-PMW= 6* MIPS1
-PLW = 7* MIPS1
-ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
-ms = ms.T # (nx7)
-# # alpha
-# alpha = alpha(fs,ss,ms,conv_factor)
-# print(alpha.shape)
-# chi2 = chi2(fs,ss,ms,alpha,conv_factor)
-# print(chi2.shape)
-
-
+ms = mock_ms(n=15)
 ## fitting in parallel: I'll adapt my alpha and chi2 for each galaxy
-# I need a list for galaxy with f,s and conv_fac : measures
+# I need a list for galaxy with f,s and conv_fac and the models
 
-params = [[fs[i],ss[i],conv_factor[i],ms] for i in range(fs.shape[0])]
-print(len(params))
-print(params[0])
-#params_comb = list(product(*params))
-#print(len(params_comb))
+params = [(fs[i],ss[i],conv_factor[i],ms) for i in range(fs.shape[0])]
 with Pool() as pool:
     alp2 = pool.starmap(alpha_2, params)
-
-print(len(alp2.shape))
+# alp2 is a 21 elements list where each element has n alphas
+params = [(fs[i],ss[i],conv_factor[i],ms,alp2[i]) for i in range(fs.shape[0])]
+with Pool() as pool:
+    x2_2 = pool.starmap(chi2_2, params)
+print(len(alp2[0]),len(x2_2[5]))

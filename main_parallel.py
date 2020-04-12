@@ -8,7 +8,7 @@ class Fit:
         self.fs = fs
         self.ss = ss
         # Here we convert the model flux to mJy
-        self.ms = ms * cfs
+        self.ms = ms * cf
     def alpha_2(self):
         # Eq. 13 from the paper
         u = (self.fs/(self.ss*self.ss))*self.ms # broadcasting: (1x7)*(nx7) = nx7
@@ -22,7 +22,7 @@ class Fit:
         # Eq. 14 from the paper
         alpha = self.alpha_2()
         u1 = self.fs # (1x7)
-        u2 = self.alpha*self.ms.T # alpha = (n), ms.shape = (nx7)
+        u2 = alpha*self.ms.T # alpha = (n), ms.shape = (nx7)
         u2 = u2.T # u2.shape = (nx7)
         u = u1 - u2 # (nx7)
         u = u*u #(nx7)

@@ -24,18 +24,16 @@ params_comb = list(product(*params))
 
 ## Using Pool.starmap to manage the sub-processes
 # https://stackoverflow.com/questions/5442910/python-multiprocessing-pool-map-for-multiple-arguments
-# print(params_comb[1000])
-#m = Model(umin= params_comb[1000][0], umax=params_comb[1000][1], model=params_comb[1000][2],gamma = params_comb[1000][3],data = params_comb[1000][4], filter=params_comb[1000][5])
-# if __name__ == '__main__':
+
 x_i = 1000
-x_f = 1005
+x_f = 1002
 params = params_comb[x_i:x_f]
 with Pool() as pool:
     models = pool.starmap(Model, params)
-    lum_densities = [model.L_density() for model in models]
+lum_densities = [model.L_density() for model in models]
 raw_arrays = []
+
 # I'll need this for the alpha and chi squared
-# ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
 MIPS1, PACS_blue, PACS_red, PACS_green, PSW, PMW, PLW= [],[],[],[],[],[],[]
 for i in range(len(params)):
     umin   = float(params[i][0])
@@ -46,9 +44,7 @@ for i in range(len(params)):
     print(lum)
     data = [umin, umax, q_PAH, gamma, lum[0]]
     # when there is no min_max file, do not pay attention to the data
-    if lum[0] == 0:
-        pass
-    else:
+    if lum[0] != 0:
         raw_arrays.append(RawArray(ctypes.c_float,data))
         if lum[1]   == 'MIPS1':
             MIPS1.append(lum[0])
@@ -65,40 +61,41 @@ for i in range(len(params)):
         else:
             PLW.append(lum[0])
 
+# ms corresponds to the fluxes in the computed models. I need to order then per
+# filter as it is ordered in fs and ss
+
+#ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
+#ms = ms.T # (nx7)
+### My program is very slow, I'll run on mock data.
+ms = mock_ms(n=15)
+
 ## Converting monochromatic luminosities to mJy
 # I'll store the conversion factor per galaxy and when the time comes,
-# I'll use it
+# I'll use it directly in the Fit class
 gals = Table.read('edgar.fits')
 d = np.array([dist for dist in gals['dist']])
-conv_factor = 1e-15/(3.086*d)
-gals['conv_factor'] = conv_factor
+cfs = 1e-15/(3.086*d)
+gals['conv_factors'] = cfs
 
 ## Computing the chi squared
-# First the elements for alpha
+# First the elements to initialize the Fit class
+# the observed flux
 fs = np.array([gals[band] for band in p_bands])
 fs = fs.T
+# the error associated to the observed flux
 ss = np.array([gals[band + '_err'] for band in p_bands])
 ss = ss.T
-# I need to order then per filter as it is ordered in fs and ss
-# ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
-ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
-ms = ms.T # (nx7)
-# alpha
-print(type(conv_factor))
-alp = alpha(fs,ss,ms,conv_factor)
-x2 = chi2(fs,ss,ms,conv_factor,alp)
-#best_x2 = x2.min()
-# print(alpha.shape,chi2.shape)
-# print(alpha)
+## Fitting in parallel: I'll adapt my alpha and chi2 for each galaxy
+# I need a list for galaxy with f,s and cf and the models
 
-## fitting in parallel: I'll adapt my alpha and chi2 for each galaxy
-# I need a list for galaxy with f,s and conv_fac and the models
+params = [(fs[i],ss[i],cfs[i],ms) for i in range(fs.shape[0])]
+with Pool() as pool:
+    fits = pool.starmap(Fit, params)
+# I get a list of 21 elements (galaxies) where each element has n (models) alphas and
+# n chi sqared
+alps  = [fit.alpha_2() for fit in fits]
+chi2s = [fit.chi2_2() for fit in fits]
 
-params = [(fs[i],ss[i],conv_factor[i],ms) for i in range(fs.shape[0])]
-with Pool() as pool:
-    alp2 = pool.starmap(alpha_2, params)
-# alp2 is a 21 elements list where each element has n alphas
-params = [(fs[i],ss[i],conv_factor[i],ms,alp2[i]) for i in range(fs.shape[0])]
-with Pool() as pool:
-    x2_2 = pool.starmap(chi2_2, params)
-print(x2_2)
+print(len(alps),len(chi2s))
+print(len(alps[0]),len(chi2s[0]))
+print(chi2s[0])

@@ -67,21 +67,21 @@ if __name__ == '__main__':
     ## Converting monochromatic luminosities to mJy
     # I'll store the conversion factor per galaxy and when the time comes,
     # I'll use it
-    data = Table.read('edgar.fits')
-    d = np.array([dist for dist in data['dist']])
-    conv_factor = 1e-15/(3.086*d)
-    data['conv_factor'] = conv_factor
+        data = Table.read('edgar.fits')
+        d = np.array([dist for dist in data['dist']])
+        conv_factor = 1e-15/(3.086*d)
+        data['conv_factor'] = conv_factor
 
-    ## Computing the chi squared
-    # First the elements for alpha
-    fs = np.array([data[band] for band in p_bands])
-    fs = fs.T
-    ss = np.array([data[band + '_err' for band in p_bands]])
-    ss = ss.T
-    # I need to order then per filter as it is ordered in fs and ss
-    # ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
-    ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
-    ms = mm.T # (nx7)
-    # alpha
-    alpha = alpha(fs,ss,ms,conv_factor)
-    chi2 = chi2(fs,ss,ms,alpha,conv_factor)
+        ## Computing the chi squared
+        # First the elements for alpha
+        fs = np.array([data[band] for band in p_bands])
+        fs = fs.T
+        ss = np.array([data[band + '_err'] for band in p_bands])
+        ss = ss.T
+        # I need to order then per filter as it is ordered in fs and ss
+        # ['MIPS1', 'PACS_blue', 'PACS_red', 'PACS_green', 'PSW', 'PMW', 'PLW']
+        ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
+        ms = ms.T # (nx7)
+        # alpha
+        alpha = alpha(fs,ss,ms,conv_factor)
+        chi2 = chi2(fs,ss,ms,alpha,conv_factor)

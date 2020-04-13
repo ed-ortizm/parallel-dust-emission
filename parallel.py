@@ -30,7 +30,7 @@ x_f = 1002
 params = params_comb[x_i:x_f]
 with Pool() as pool:
     models = pool.starmap(Model, params)
-lum_densities = [model.L_density() for model in models]
+    lum_densities = [model.L_density() for model in models]
 raw_arrays = []
 
 # I'll need this for the alpha and chi squared
@@ -92,8 +92,8 @@ with Pool() as pool:
     fits = pool.starmap(Fit, params)
 # I get a list of 21 elements (galaxies) where each element has n (models) alphas and
 # n chi sqared
-alps  = [fit.alpha_2() for fit in fits]
-chi2s = [fit.chi2_2() for fit in fits]
+    alps  = [fit.alpha_2() for fit in fits]
+    chi2s = [fit.chi2_2() for fit in fits]
 
 print(len(alps),len(chi2s))
 print(len(alps[0]),len(chi2s[0]))

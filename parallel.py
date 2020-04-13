@@ -41,7 +41,6 @@ for i in range(len(params)):
     q_PAH  = model_q_dic[params[i][2]]
     gamma  = params[i][3]
     lum = lum_densities[i][1:] # --> (L_density,band)
-    print(lum)
     data = [umin, umax, q_PAH, gamma, lum[0]]
     # when there is no min_max file, do not pay attention to the data
     if lum[0] != 0:
@@ -98,4 +97,7 @@ chi2s = [fit.chi2_2() for fit in fits]
 
 print(len(alps),len(chi2s))
 print(len(alps[0]),len(chi2s[0]))
-print(chi2s[0])
+
+# smallest chi sqare
+for chi in chi2s:
+    print(chi.min(),chi.max())

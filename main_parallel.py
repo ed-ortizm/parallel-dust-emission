@@ -48,13 +48,13 @@ def umm(files_array):
 
 def mock_ms(n=10):
     # mock model's flux data
-    MIPS1      = 1e-24*np.ones(n)
-    PACS_blue  = 2.* MIPS1
-    PACS_red   = 3.* MIPS1
-    PACS_green = 4.*MIPS1
-    PSW        = 5.*MIPS1
-    PMW        = 6.*MIPS1
-    PLW        = 7.*MIPS1
+    MIPS1      = 1e-22*np.random.random(n)
+    PACS_blue  = 1e-22*np.random.random(n)
+    PACS_red   = 1e-22*np.random.random(n)
+    PACS_green = 1e-22*np.random.random(n)
+    PSW        = 1e-22*np.random.random(n)
+    PMW        = 1e-22*np.random.random(n)
+    PLW        = 1e-22*np.random.random(n)
     ms = np.array([MIPS1,PACS_blue,PACS_red,PACS_green,PSW,PMW,PLW])
     ms = ms.T # (nx7)
     return ms

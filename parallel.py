@@ -99,5 +99,8 @@ print(len(alps),len(chi2s))
 print(len(alps[0]),len(chi2s[0]))
 
 # smallest chi sqare
-for chi in chi2s:
-    print(chi.min(),chi.max())
+gals_chi = np.zeros(fs.shape[0])
+gals_alp = np.zeros(fs.shape[0])
+for i in range(len(chi2s)) :
+    gals_chi = chi2s[i].min()
+    gals_alp = alps[i]
